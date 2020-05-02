@@ -1,0 +1,85 @@
+ 2001  git clone git@github.com:JackMaguire/RLDock.git
+ 2002  emacs ~/.bashrc
+ 2003  ls
+ 2004  cd RLDock/
+ 2005  ls
+ 2006  emacs setup_history.sh
+ 2007  fg
+ 2008  emacs setup_history.sh 
+ 2009  ls
+ 2010  fg
+ 2011  sudo bash setup_history.sh
+ 2012  ls
+ 2013  mkdir simple1
+ 2014  cd simple1
+ 2015  ls
+ 2016  mkdir gym1D
+ 2017  ls
+ 2018  cd ls
+ 2019  cd gym1D/
+ 2020  pip3 install numpy
+ 2021  gym1d_impl.py
+ 2022  emacs gym1d_impl.py
+ 2023  ls /usr/local/
+ 2024  find /usr/local/ | grep keras
+ 2025  find /usr/local/ | grep keras-rl
+ 2026  find /usr/local/ | grep dqn_cartpole.py
+ 2027  find /usr/ | grep dqn_cartpole.py
+ 2028  ls /usr
+ 2029  ls /
+ 2030  man locate
+ 2031  locate dqn_cartpole.py
+ 2032  ls /home/jackmag/.local/lib/python3.6/
+ 2033  ls /home/jackmag/.local/lib/python3.6/site-packages/
+ 2034  ls /home/jackmag/.local/lib/python3.7/site-packages/
+ 2035  ls /home/jackmag/.local/lib/python3.6/site-packages/
+ 2036  emacs temp.py
+ 2037  fg
+ 2038  python3 temp.py 
+ 2039  ls /usr/local/lib/python3.6/dist-packages/rl
+ 2040  ls
+ 2041  emacs temp2.py
+ 2042  python3 temp2.py 
+ 2043  pip3 uninstall keras-rl
+ 2044  sudo pip3 uninstall keras-rl
+ 2045  cd ..
+ 2046  ls
+ 2047  cd ..
+ 2048  ls
+ 2049  emacs setup_history.sh
+ 2050  ls
+ 2051  cd ..
+ 2052  git clone git@github.com:keras-rl/keras-rl.git
+ 2053  cd keras-rl/
+ 2054  ls
+ 2055  sudo python3 setup.py install
+ 2056  history
+ 2057  fg
+ 2058  ls
+ 2059  cd ../RLDock/
+ 2060  ls
+ 2061  git add setup_history.sh
+ 2062  git commit -am "setup_history.sh"
+ 2063  cd simple1/
+ 2064  ls
+ 2065  cd gym1D/
+ 2066  ls
+ 2067  git add gym1d_impl.py  temp2.py  temp.py  
+ 2068  git commit -am "python scripts"
+ 2069  python3 temp2.py
+ 2070  pip3 install wandb
+ 2071  python3 temp2.py
+ 2072  man pip3
+ 2073  sudo pip3 update keras
+ 2074  sudo pip3 install keras
+ 2075  pip3 list
+ 2076  pip3 install pip3
+ 2077  pip3 install pip
+ 2078  pip3 update
+ 2079  man pip3
+ 2080  sudo -H pip3 install --upgrade pip
+ 2081  sudo -H pip3 install --upgrade keras
+ 2082  ls
+ 2083  python3 temp.py
+ 2084  python3 temp2.py
+ 2085  history
