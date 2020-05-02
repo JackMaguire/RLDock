@@ -5,7 +5,7 @@ from gym import spaces
 from gym.utils import seeding
 
 
-class HotterColder(gym.Env):
+class Gym1DEnv(gym.Env):
     """Hotter Colder
     The goal of hotter colder is to guess closer to a randomly selected number
 
@@ -43,7 +43,10 @@ class HotterColder(gym.Env):
         return [seed]
 
     def step(self, action):
-        assert self.action_space.contains(action)
+        if not self.action_space.contains(action):
+            print( action )
+            print( self.action_space )
+            assert self.action_space.contains(action)
 
         if action < self.number:
             self.observation = 1
