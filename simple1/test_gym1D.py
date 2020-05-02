@@ -5,7 +5,7 @@ import gym1D
 import numpy as np
 
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten
+from keras.layers import Dense, Activation, Flatten, Reshape
 from keras.optimizers import Adam
 
 from rl.agents.cem import CEMAgent
@@ -14,8 +14,8 @@ from rl.memory import EpisodeParameterMemory
 
 env = gym.make('Gym1D-v0')
 
-np.random.seed(123)
-env.seed(123)
+#np.random.seed(123)
+#env.seed(123)
 
 nb_actions = 1 #env.action_space.n
 obs_dim = 1 #env.observation_space.shape[0]
@@ -29,13 +29,14 @@ obs_dim = 1 #env.observation_space.shape[0]
 # Option 2: deep network
 model = Sequential()
 #model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-model.add(Dense( 16, input_shape=(1,) ))
-model.add(Activation('relu'))
-model.add(Dense(16))
-model.add(Activation('relu'))
-model.add(Dense(16))
-model.add(Activation('relu'))
-model.add(Dense(nb_actions))
+model.add( Dense( 16, input_shape=(1,) ) )
+model.add( Activation('relu') )
+model.add( Dense(16) )
+model.add( Activation('relu') )
+model.add( Dense(16) )
+model.add( Activation('relu') )
+model.add( Dense(nb_actions) )
+model.add( Reshape( [1,nb_actions] ) )
 #model.add(Activation('softmax'))
 
 
@@ -45,6 +46,7 @@ print(model.summary())
 # even the metrics!
 memory = EpisodeParameterMemory(limit=1000, window_length=1)
 
+#TODO write your own agent!
 cem = CEMAgent(model=model, nb_actions=nb_actions, memory=memory,
                batch_size=50, nb_steps_warmup=2000, train_interval=50, elite_frac=0.05)
 cem.compile()

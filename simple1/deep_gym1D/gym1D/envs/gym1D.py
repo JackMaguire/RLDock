@@ -43,10 +43,13 @@ class Gym1DEnv(gym.Env):
         return [seed]
 
     def step(self, action):
+        '''
         if not self.action_space.contains(action):
             print( action )
             print( self.action_space )
+            print( self.action_space.contains( [action] ) )
             assert self.action_space.contains(action)
+        '''
 
         if action < self.number:
             self.observation = 1
@@ -58,11 +61,13 @@ class Gym1DEnv(gym.Env):
             self.observation = 3
 
         reward = ((min(action, self.number) + self.bounds) / (max(action, self.number) + self.bounds)) ** 2
+        
+        print( action, self.number, reward )
 
         self.guess_count += 1
         done = self.guess_count >= self.guess_max
 
-        return self.observation, reward[0], done, {"number": self.number, "guesses": self.guess_count}
+        return self.observation, reward, done, {"number": self.number, "guesses": self.guess_count}
 
     def reset(self):
         self.number = self.np_random.uniform(-self.range, self.range)
