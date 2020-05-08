@@ -107,7 +107,6 @@ def get2Dplot():
 
 if __name__ == '__main__':
 
-
     fig = plt.figure()
 
     #1d
