@@ -31,14 +31,20 @@ class FakeLandscape:
         self.minima = [] #each element is an array
         self.minima_depths = []
         self.minima_factor = [] #make the wells more shallow
+        self.global_minimum = 0
+
         for i in range( 0, self.n_minima ):
             minima_coords = []
             for _ in range( 0, self.ndim ):
                 minima_coords.append( uniform( self.min, self.max ) )
 
             self.minima.append( minima_coords )
-            self.minima_depths.append( uniform( self.max_depth, self.min_depth ) )
             self.minima_factor.append( uniform( 0.01, 0.1 ) )
+            depth = uniform( self.max_depth, self.min_depth )
+            self.minima_depths.append( depth )
+            if depth < self.global_minimum:
+                self.global_minimum = depth
+
 
     #arr is a numpy array with shape (self.ndim)
     def score( self, arr ):
@@ -64,7 +70,23 @@ class FakeLandscape:
                 best_score = score
         return add_noise( best_score )
 
-if __name__ == '__main__':
+def get1Dplot():
+    #print 2D landscape
+    landscape = FakeLandscape( 1 )
+
+    min = 1.5 * ( landscape.min / landscape.scale )
+    max = 1.5 * ( landscape.max / landscape.scale )
+    d = 1.0 / landscape.scale
+
+    X = np.arange(min,max,d)
+    Y = np.arange(min,max,d)
+
+    for i in range( 0, len(X) ):
+        Y[i] = landscape.score( [ X[i] ] )
+
+    return X, Y
+
+def get2Dplot():
     #print 2D landscape
     landscape = FakeLandscape( 2 )
 
@@ -81,7 +103,21 @@ if __name__ == '__main__':
         for j in range( 0, len(y) ):
             Z[i][j] = landscape.score( [ x[i], y[j] ] )
 
+    return X, Y, Z
+
+if __name__ == '__main__':
+
+
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(X, Y, Z)
+
+    #1d
+    X,Y = get1Dplot()
+    ax = fig.add_subplot(111)
+    ax.plot(X, Y)
+
+    #2d
+    #X,Y,Z = get2Dplot()
+    #ax = fig.add_subplot(111, projection='3d')
+    #ax.plot_surface(X, Y, Z)
+
     plt.show()
