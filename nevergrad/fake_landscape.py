@@ -108,7 +108,7 @@ def get2Dplot():
 if __name__ == '__main__':
 
     #1D
-    if True:
+    if False:
         fig, axs = plt.subplots(3,1)
         fig.suptitle('1D Landscapes')
         for i in range( 0, 3 ):
@@ -119,7 +119,7 @@ if __name__ == '__main__':
             ax.set(xlabel='Value', ylabel='Score')
 
     #2d
-    if False:
+    if True:
         fig, axs = plt.subplots(2,2,subplot_kw=dict(projection='3d'))
         fig.suptitle('2D Landscapes')
         for i in range( 0, 2 ):
