@@ -30,7 +30,7 @@ class FakeLandscape1D:
         #scale
         #val := {-1,1}
         #landscape := {-100,00}
-        val = arr[ 0 ] * 100
+        val = arr[ 0 ] * self.scale
 
         #let's just do a simple quadratic to the closest well
         #Energy wells are negative, let's say the lanscape is flat at +1
