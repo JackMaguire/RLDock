@@ -107,14 +107,29 @@ def get2Dplot():
 
 if __name__ == '__main__':
 
-    fig = plt.figure()
+    #1D
+    if True:
+        fig, axs = plt.subplots(3,1)
+        fig.suptitle('1D Landscapes')
+        for i in range( 0, 3 ):
+            X,Y = get1Dplot()
+            axs[i].plot(X,Y)
 
-    #1d
-    X,Y = get1Dplot()
-    ax = fig.add_subplot(111)
-    ax.plot(X, Y)
+        for ax in axs.flat:
+            ax.set(xlabel='Value', ylabel='Score')
 
     #2d
+    if False:
+        fig, axs = plt.subplots(2,2,subplot_kw=dict(projection='3d'))
+        fig.suptitle('2D Landscapes')
+        for i in range( 0, 2 ):
+            for j in range( 0, 2 ):
+                X,Y,Z = get2Dplot()
+                axs[i][j].plot_surface(X,Y,Z)
+
+        for ax in axs.flat:
+            ax.set(xlabel='Value1', ylabel='Value2', zlabel='Score')
+
     #X,Y,Z = get2Dplot()
     #ax = fig.add_subplot(111, projection='3d')
     #ax.plot_surface(X, Y, Z)
