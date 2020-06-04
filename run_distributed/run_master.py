@@ -44,8 +44,8 @@ def run_master( comm, nprocs, rank ):
 
     while True:
         while len( available_nodes ) > 0:
-            six_dofs = get_next_sample()
-            if is_kill_signal( six_dofs ):
+            six_dofs = get_next_sample() #TODO IVY/JACK
+            if is_kill_signal( six_dofs ): #TODO JACK
                 execute_kill_seq( available_nodes, working_nodes )
 
             node = available_nodes.pop()
@@ -61,4 +61,4 @@ def run_master( comm, nprocs, rank ):
 
         score = bundle[ 0 ]
         pose_filename = bundle[ 1 ]
-        interpret_result( score, pose_filename )
+        interpret_result( score, pose_filename ) #TODO IVY/JACK

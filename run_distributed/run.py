@@ -8,14 +8,14 @@ rank = comm.Get_rank()
 
 def run_slave( comm, rank ):
 
-    pose = whatever()
+    pose = get_starting_pose() #TODO IVY
 
     while True:
         six_dofs = comm.recv( source=0, tag=11 )
-        if is_kill_signal( six_dofs ):
+        if is_kill_signal( six_dofs ): #TODO JACK
             comm.send( 0, dest=0, tag=0 )
             break
-        score, pose_filename = score_six_dofs( six_dofs )
+        score, pose_filename = score_six_dofs( six_dofs ) #TODO IVY/BRIAN
         bundle = [ score, pose_filename ]
         comm.send( bundle, dest=0, tag=11 )
 
