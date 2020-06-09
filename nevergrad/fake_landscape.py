@@ -9,7 +9,7 @@ import numpy as np
 def add_noise( score ):
     one_percent = score * 0.01
     noise = uniform( 0, one_percent )
-    return score * ( 1 - noise )
+    return score * ( 1 + noise )
 
 class FakeLandscape:
     #This landscape will have multiple minima of random depths
@@ -18,9 +18,9 @@ class FakeLandscape:
         self.ndim = ndim #Expecting 1 to 6 dimensions
 
         #min and max values for minima
-        self.min = -100.0
-        self.max = 100.0
-        self.scale = 100.0 #we want to stay between 0 and 100
+        self.min = -1.0
+        self.max = 1.0
+        self.scale = 1.0 #we want to stay between 0 and 100
 
         #define min and max depths for the wells
         #(max means more negative, I suppose)
@@ -47,10 +47,10 @@ class FakeLandscape:
 
 
     #arr is a numpy array with shape (self.ndim)
-    def score( self, arr ):
+    def score( self, arr, noise=True ):
         #scale
         #arr := {-1,1}
-        #landscape := {-100,00}
+        #landscape := {-100,100}
         vals = []
         for a in arr:
             vals.append( a * self.scale )
@@ -68,7 +68,10 @@ class FakeLandscape:
             score = quardtratic + self.minima_depths[ i ]
             if score < best_score:
                 best_score = score
-        return add_noise( best_score )
+        if noise:
+            return add_noise( best_score )
+        else:
+            return best_score
 
 def get1Dplot():
     #print 2D landscape
