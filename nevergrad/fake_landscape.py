@@ -8,7 +8,7 @@ import numpy as np
 
 def add_noise( score ):
     one_percent = score * 0.1
-    noise = uniform( - one_percent, one_percent )
+    noise = uniform( 0, one_percent )
     return score * ( 1 + noise )
 
 class FakeLandscape:
