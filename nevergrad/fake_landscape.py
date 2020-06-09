@@ -9,7 +9,7 @@ import numpy as np
 def add_noise( score ):
     one_percent = score * 0.1
     noise = uniform( 0, one_percent )
-    return score * ( 1 + noise )
+    return score * ( 1 - noise )
 
 class FakeLandscape:
     #This landscape will have multiple minima of random depths
