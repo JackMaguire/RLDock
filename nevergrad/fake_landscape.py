@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def add_noise( score ):
-    one_percent = score * 0.1
+    one_percent = score * 0.01
     noise = uniform( 0, one_percent )
     return score * ( 1 - noise )
 
