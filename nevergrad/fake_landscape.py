@@ -6,15 +6,15 @@ from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 import numpy as np
 
-def add_noise( score ):
-    one_percent = score * 0.01
+def add_noise( score, noise_level=0.01 ):
+    one_percent = score * noise_level
     noise = uniform( 0, one_percent )
     return score * ( 1 + noise )
 
 class FakeLandscape:
     #This landscape will have multiple minima of random depths
 
-    def __init__(self, ndim):
+    def __init__(self, ndim, noise_level=0.01):
         self.ndim = ndim #Expecting 1 to 6 dimensions
 
         #min and max values for minima
@@ -27,6 +27,8 @@ class FakeLandscape:
         self.max_depth = -1
         self.min_depth = -0.5
 
+        self.noise = noise_level
+        
         self.n_minima = 3 ** self.ndim
         self.minima = [] #each element is an array
         self.minima_depths = []
@@ -69,7 +71,7 @@ class FakeLandscape:
             if score < best_score:
                 best_score = score
         if noise:
-            return add_noise( best_score )
+            return add_noise( best_score, self.noise )
         else:
             return best_score
 

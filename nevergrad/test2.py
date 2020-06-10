@@ -23,10 +23,10 @@ def run( ndim, budget ):
         Ys.append( myscore / landscape.global_minimum )
         return myscore
 
-    #TBPSA
+    #TBPSA #Best so far
     #PSO
     #ScrHammersleySearchPlusMiddlePoint
-    optimizer = ng.optimizers.OnePlusOne( parametrization=ndim, budget=budget, num_workers=1000 )
+    optimizer = ng.optimizers.TBPSA( parametrization=ndim, budget=budget, num_workers=1000 )
     recommendation = optimizer.minimize( measure )
 
     best_score_found = landscape.score( recommendation.value, noise=False )
@@ -51,5 +51,5 @@ plt.plot( Xs, Ys )
 plt.plot( Xs, Y2s )
 plt.xlabel( "Sample Num" )
 plt.ylabel( "Score" )
-plt.ylim(0.99,1.0)
-plt.savefig("test2.pdf", bbox_inches='tight')
+plt.ylim( 0.99, 1.0 )
+plt.savefig("test2.TBPSA.2.pdf", bbox_inches='tight')
