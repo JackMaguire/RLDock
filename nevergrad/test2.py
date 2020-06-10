@@ -3,12 +3,12 @@ from fake_landscape import *
 import nevergrad as ng
 import matplotlib.pyplot as plt
 from numpy import mean
-'''
-for x in ng.optimizers.registry:
-    print( x )
-exit(0)
-'''
+import random as rand
+
 def run( ndim, budget ):
+    np.random.seed( 111 )
+    rand.seed( a=111 )
+
     landscape = FakeLandscape( ndim )
 
     #i = 0
@@ -26,7 +26,7 @@ def run( ndim, budget ):
     #TBPSA #Best so far
     #PSO
     #ScrHammersleySearchPlusMiddlePoint
-    optimizer = ng.optimizers.TBPSA( parametrization=ndim, budget=budget, num_workers=1000 )
+    optimizer = ng.optimizers.ScrHammersleySearchPlusMiddlePoint( parametrization=ndim, budget=budget, num_workers=1000 )
     recommendation = optimizer.minimize( measure )
 
     best_score_found = landscape.score( recommendation.value, noise=False )
@@ -52,4 +52,4 @@ plt.plot( Xs, Y2s )
 plt.xlabel( "Sample Num" )
 plt.ylabel( "Score" )
 plt.ylim( 0.99, 1.0 )
-plt.savefig("test2.TBPSA.2.pdf", bbox_inches='tight')
+plt.savefig("test2.Hammers.2.pdf", bbox_inches='tight')
