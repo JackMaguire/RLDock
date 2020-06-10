@@ -21,5 +21,6 @@ and not all of the past states.
 
 # Reading
 
-[games_cec.pdf](https://www.lamsade.dauphine.fr/~cazenave/papers/games_cec.pdf)
+- [Parallel Noisy Optimization in Front of Simulators: Optimism, Pessimism, Repetitions Population Control](https://www.lamsade.dauphine.fr/~cazenave/papers/games_cec.pdf)
+- [Population Control meets Doob’s Martingale Theorems: the Noise-free Multimodal Case](https://arxiv.org/pdf/2005.13970.pdf)
 
