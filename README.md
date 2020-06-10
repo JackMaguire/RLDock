@@ -18,3 +18,8 @@ TODO [(link)](https://facebookresearch.github.io/nevergrad/getting_started.html)
 This was put on the back burner.
 The biggest hurdle is that these models appear to only consider the current state of the "game"
 and not all of the past states.
+
+# Reading
+
+[games_cec.pdf](https://www.lamsade.dauphine.fr/~cazenave/papers/games_cec.pdf)
+
