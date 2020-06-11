@@ -11,7 +11,6 @@ parser.add_argument('--opt', help='sum the integers (default: find the max)', re
 args = parser.parse_args()
 
 print( args.opt )
-exit( 0 )
 
 def run( landscape, opt_name, num_workers=1000, budget=10000, ndim=6 ):
     def measure( x ):
