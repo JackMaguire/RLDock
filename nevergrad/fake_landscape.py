@@ -14,7 +14,7 @@ def add_noise( score, noise_level=0.01 ):
 class FakeLandscape:
     #This landscape will have multiple minima of random depths
 
-    def __init__(self, ndim, noise_level=0.01):
+    def __init__(self, ndim=6, noise_level=0.05, width_factor = 1.0):
         self.ndim = ndim #Expecting 1 to 6 dimensions
 
         #min and max values for minima
@@ -41,7 +41,7 @@ class FakeLandscape:
                 minima_coords.append( uniform( self.min, self.max ) )
 
             self.minima.append( minima_coords )
-            self.minima_factor.append( uniform( 0.01, 0.1 ) )
+            self.minima_factor.append( uniform( 0.01, 0.1 ) * width_factor )
             depth = uniform( self.max_depth, self.min_depth )
             self.minima_depths.append( depth )
             if depth < self.global_minimum:
