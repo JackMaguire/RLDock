@@ -18,8 +18,8 @@ def run( landscape, opt_name, num_workers=1000, budget=10000, ndim=6 ):
 
 #opt="RotationInvariantDE"
 #opt="PSO"
-opt="TBPSA"
-#opt="ScrHammersleySearchPlusMiddlePoint"
+#opt="TBPSA"
+opt="ScrHammersleySearchPlusMiddlePoint"
 print( "width_factor", opt )
 
 
