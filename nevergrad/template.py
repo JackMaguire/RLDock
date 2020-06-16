@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 from numpy import mean
 import numpy as np
 import random as rand
+import argparse
+
+parser = argparse.ArgumentParser(description='test_narrowness.py')
+parser.add_argument('--opt', help='optimizer to use', required=True )
+args = parser.parse_args()
+
+print( args.opt )
 
 def run( landscape, opt_name, num_workers=1000, budget=10000, ndim=6 ):
     def measure( x ):
@@ -16,16 +23,13 @@ def run( landscape, opt_name, num_workers=1000, budget=10000, ndim=6 ):
     return score
 
 
-#opt="RotationInvariantDE"
-opt="PSO"
-#opt="TBPSA"
-#opt="ScrHammersleySearchPlusMiddlePoint"
+opt=args.opt
 print( "noise", opt )
 
 
 noise = 0.01
 while noise <= 0.5:
-    budget=1000 #benchmark at 10000
+    budget=10000 #benchmark at 10000
     
     scores = []
     for r in range( 0, 10 ): #Keep at 10
