@@ -41,6 +41,7 @@ fig.savefig( "contour_movie.pdf" )
 
 #relevant links:
 # - https://stackoverflow.com/questions/55624400/animate-scatter-and-contour-plot
+# - https://brushingupscience.com/2016/06/21/matplotlib-animations-the-easy-way/
 
 scatter_X_points = []
 scatter_Y_points = []
