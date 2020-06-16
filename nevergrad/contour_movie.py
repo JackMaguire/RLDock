@@ -9,7 +9,9 @@ import matplotlib.cm as cm
 from matplotlib.animation import FuncAnimation
 
 parser = argparse.ArgumentParser(description='test_narrowness.py')
-parser.add_argument('--opt', help='optimizer to use', required=True )
+parser.add_argument('--opt', help='optimizer to use', required=True, type=str )
+parser.add_argument('--budget', help='how many points should we sample?', default=300, required=False, type=int )
+parser.add_argument('--keep_history', help='if false, only show the most recent points', required=True, type=bool )
 args = parser.parse_args()
 
 print( args.opt )
@@ -45,7 +47,7 @@ fig.savefig( "contour_movie.pdf" )
 
 scatter_X_points = []
 scatter_Y_points = []
-npoints=300
+npoints=args.budget #300
 nworkers=5
 optimizer = ng.optimizers.registry[ args.opt ]( parametrization=2, budget=npoints, num_workers=nworkers )
 for _ in range( 0, npoints ):
@@ -60,12 +62,16 @@ scat = ax.scatter( scatter_X_points[0:nworkers], scatter_Y_points[0:nworkers], c
 fig.savefig( "contour_movie.inital_points.pdf" )
 
 def animate(i):
-    x_i = scatter_X_points[i:nworkers+i]
-    y_i = scatter_Y_points[i:nworkers+i]
+    if args.keep_history:
+        x_i = scatter_X_points[0:nworkers+i]
+        y_i = scatter_Y_points[0:nworkers+i]
+    else:
+        x_i = scatter_X_points[i:nworkers+i]
+        y_i = scatter_Y_points[i:nworkers+i]
     scat.set_offsets( np.c_[ x_i, y_i ] )
 
 anim = FuncAnimation(
     fig, animate, interval=100, frames=npoints-nworkers-1)
 
 #This needs you to install ffmpeg
-anim.save( args.opt + 'contour.mp4' )
+anim.save( args.opt + '.contour.mp4' )
