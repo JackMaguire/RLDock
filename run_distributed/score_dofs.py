@@ -5,11 +5,11 @@ from pyrosetta.rosetta.protocols.rosetta_scripts import *
 from pyrosetta.rosetta.core.kinematics import Jump
 
 #pyrosetta.init( "-mute all" )
-pyrosetta.init( "-linmem_ig 10" )
+pyrosetta.init( "-mute all -linmem_ig 10" )
 ft_tag = "<AtomTree fold_tree_file=\"test_aligned_3H.foldtree\" />"
 ft_mover = XmlObjects.static_get_mover( ft_tag )
 
-only_do_low_res = False
+only_do_low_res = True
 
 def magic_number_for_failed_docking_filter():
     return 1;
@@ -94,7 +94,7 @@ def score_dofs_and_get_pose( dofs ):
     # TODO
     if only_do_low_res:
         print( "XYZ", low_res_score )
-        return { "score": low_res_score / 10 } #TEMP
+        return { "score": low_res_score / 10, "pose": pose } #TEMP
 
     print( "low_res_score", low_res_score )
     if low_res_score >= 0.0:

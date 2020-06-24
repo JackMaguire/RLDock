@@ -25,7 +25,7 @@ def scorer(x):
         mysum += i*i
     return mysum
 
-def run_slave( comm, rank ):
+def run_slave( comm, rank, out_prefix ):
 
     dumped_pose_count = 0;
     
@@ -38,12 +38,12 @@ def run_slave( comm, rank ):
             break
 
         #print( "Running", six_dofs.value )
-        score_pose_dict = score_separate_dofs_and_get_pose( six_dofs.value )
+        score_pose_dict = score_separate_dofs_and_get_pose( t=six_dofs.value[1]['t'], r=six_dofs.value[1]['r'] )
         
         pose_filename="(none)"
         if "pose" in score_pose_dict:
             dumped_pose_count += 1
-            pose_filename = "pose_" + str( rank ) + "_" + str( dumped_pose_count ) + ".pdb"
+            pose_filename = out_prefix + "_" + str( rank ) + "_" + str( dumped_pose_count ) + ".pdb"
             score_pose_dict[ "pose" ].dump_pdb( pose_filename )
             
         assert( "score" in score_pose_dict )
@@ -55,5 +55,5 @@ def run_slave( comm, rank ):
 if rank == 0:
     run_master( comm=comm, nprocs=nprocs, rank=rank, opt=args.opt, budget=args.budget, out_prefix=args.out_prefix, in_prefices=args.in_prefices )
 else:
-    run_slave( comm, rank )
+    run_slave( comm, rank, out_prefix=args.out_prefix )
 

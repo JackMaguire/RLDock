@@ -1,8 +1,10 @@
 from mpi4py import MPI
 #from sets import Set
 import nevergrad as ng
+import numpy as np
 
-all_results_dofs = []
+all_results_tdofs = []
+all_results_rdofs = []
 all_results_scores = []
 
 def send_job_to_node( comm, six_dofs, node, tag=1 ):
@@ -14,9 +16,9 @@ def interpret_result( bundle ):
     pose_filename = bundle[ 2 ]
     print( "RESULT", pose_filename, score, six_dofs )
 
-    all_results_dofs.append( six_dofs.value )
-    all_results_scores.append( score )
-    #TODO
+    all_results_tdofs.append( np.asarray( six_dofs.value[1]['t'] ) )
+    all_results_rdofs.append( np.asarray( six_dofs.value[1]['r'] ) )
+    all_results_scores.append( np.asarray( score ) )
 
 def tell_node_to_die( comm, node ):
     send_job_to_node( comm, "die", node, tag=0 )
@@ -47,30 +49,40 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices ):
         available_nodes.add( i )
 
     working_nodes = set()
-    
-    optimizer = ng.optimizers.registry[ opt ]( parametrization=6, budget=budget, num_workers=(nprocs-1) )
+
+    TransParams = ng.p.Array( shape=(3,) )
+    RotParams = ng.p.Array( shape=(3,) ).set_bounds( -2.5, 2.5 )
+    AllParams = ng.p.Instrumentation( t=TransParams, r=RotParams )
+
+    optimizer = ng.optimizers.registry[ opt ]( parametrization=AllParams, budget=budget, num_workers=(nprocs-1) )
 
     #Load if needed
     if len( in_prefices ) > 0:
+        npoints_loaded=0
         for prefix in in_prefices.split( "," ):
-            filename1 = prefix + ".all_results_dofs.npy"
-            filename2 = prefix + ".all_results_scores.npy"
-            dofs = np.load( filename1, allow_pickle=False )
-            score = np.load( filename2, allow_pickle=False )
-            assert( len( dofs ) == len( score ) )
-            for i in range( 0, len( dofs ) ):
+            filenamet = prefix + ".all_results_tdofs.npy"
+            filenamer = prefix + ".all_results_rdofs.npy"
+            filenames = prefix + ".all_results_scores.npy"
+            tdofs = np.load( filenamet, allow_pickle=False )
+            rdofs = np.load( filenamer, allow_pickle=False )
+            score = np.load( filenames, allow_pickle=False )
+            assert( len( tdofs ) == len( rdofs ) )
+            assert( len( tdofs ) == len( score ) )
+            for i in range( 0, len( tdofs ) ):
                 #optimizer.suggest( dofs[ i ] )
                 #x = optimizer.ask()
-                x = optim.parametrization.spawn_child(new_value=dofs[ i ])
-                assert( x.value == dofs[ i ] )
+                #x = optimizer.parametrization.spawn_child(new_value=( tdofs[ i ], rdofs[i] ))
+                x = optimizer.parametrization.spawn_child(new_value=((), {'t': tdofs[ i ], 'r': rdofs[i]}) )
                 optimizer.tell( x, score[ i ] )
+                npoints_loaded += 1
+        print( "loaded", npoints_loaded, "points" )
         
     
     adjusted_budget = budget #this grows when jobs fail
     njobs_sent = 0
     while njobs_sent < adjusted_budget:
     #for b in range( 0, budget ):
-        if njobs_sent % 100 == 0:
+        if njobs_sent % 1 == 0:
             print( "Sent", njobs_sent, "jobs" )
         if len( available_nodes ) == 0:
             #All are busy, wait for results
@@ -102,5 +114,9 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices ):
     execute_kill_seq( comm, available_nodes, working_nodes )
     print( optimizer.provide_recommendation().value )
 
-    np.save( out_prefix + ".all_results_dofs.npy", np.asarray(all_results_dofs), allow_pickle=False )
+    test1 = np.asarray( all_results_tdofs )
+    print( test1.shape )
+    
+    np.save( out_prefix + ".all_results_tdofs.npy", np.asarray(all_results_tdofs), allow_pickle=False )
+    np.save( out_prefix + ".all_results_rdofs.npy", np.asarray(all_results_rdofs), allow_pickle=False )
     np.save( out_prefix + ".all_results_scores.npy", np.asarray(all_results_scores), allow_pickle=False )
