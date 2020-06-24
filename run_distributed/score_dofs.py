@@ -4,11 +4,12 @@ from pyrosetta.teaching import *
 from pyrosetta.rosetta.protocols.rosetta_scripts import *
 from pyrosetta.rosetta.core.kinematics import Jump
 
-pyrosetta.init( "-mute all" )
+#pyrosetta.init( "-mute all" )
+pyrosetta.init( "-linmem_ig 10" )
 ft_tag = "<AtomTree fold_tree_file=\"test_aligned_3H.foldtree\" />"
 ft_mover = XmlObjects.static_get_mover( ft_tag )
 
-only_do_low_res = True
+only_do_low_res = False
 
 def magic_number_for_failed_docking_filter():
     return 1;
@@ -21,8 +22,20 @@ def score_separate_dofs( t, r ):
     assert( len( r ) == 3 )
     return score_dofs( [ t[0], t[1], t[2], r[0], r[1], r[2] ] )
 
+def score_separate_dofs_and_get_pose( t, r ):
+    assert( len( t ) == 3 )
+    assert( len( r ) == 3 )
+    return score_dofs_and_get_pose( [ t[0], t[1], t[2], r[0], r[1], r[2] ] )
+
 def score_dofs( dofs ):
+    bundle = score_dofs_and_get_pose( dofs )
+    return bundle[ "score" ]
+    
+def score_dofs_and_get_pose( dofs ):
     assert( len( dofs ) == 6 )
+
+    #print( pyrosetta.rosetta.protocols.moves.MS_SUCCESS )
+    #exit( 0 )
     
     pose = pose_from_pdb("test_aligned_3H.pdb")   # input pdbfile
     #pose = pose_from_pdb("3u3b.clean.pdb")
@@ -81,11 +94,11 @@ def score_dofs( dofs ):
     # TODO
     if only_do_low_res:
         print( "XYZ", low_res_score )
-        return low_res_score / 10 #TEMP
+        return { "score": low_res_score / 10 } #TEMP
 
     print( "low_res_score", low_res_score )
     if low_res_score >= 0.0:
-        return magic_number_for_failed_docking_filter()
+        return { "score": magic_number_for_failed_docking_filter() }
 
     #Go back into high-resolution mode
     switch2 = SwitchResidueTypeSetMover( "fa_standard" )
@@ -97,8 +110,8 @@ def score_dofs( dofs ):
     protocol = parser.generate_mover( "design.xml" )
     protocol.apply( pose )
 
-    if protocol.get_last_move_status() != protocols.moves.MS_SUCCESS:
-        return magic_number_for_failed_design_filter()
+    if protocol.get_last_move_status() != pyrosetta.rosetta.protocols.moves.MS_SUCCESS:
+        return { "score": magic_number_for_failed_design_filter() }
 
     sfxn = create_score_function( "ref2015" )
     final_score_per_residue = sfxn.score( pose ) / pose.size()
@@ -108,4 +121,4 @@ def score_dofs( dofs ):
     if normalized_score_per_residue > magic_number_for_failed_design_filter():
         #We don't want to punish the trajectory for passing filters
         return magic_number_for_failed_design_filter()
-    return normalized_score_per_residue
+    return { "score": normalized_score_per_residue, "pose": pose }

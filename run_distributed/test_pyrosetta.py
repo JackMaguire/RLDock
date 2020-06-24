@@ -8,7 +8,7 @@ args = parser.parse_args()
 
 print( args.opt )
 
-if True:
+if False:
     TransParams = ng.p.Array( shape=(3,) )
     RotParams = ng.p.Array( shape=(3,) ).set_bounds( -2.5, 2.5 )
     AllParams = ng.p.Instrumentation( t=TransParams, r=RotParams )

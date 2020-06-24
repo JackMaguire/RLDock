@@ -2,6 +2,9 @@ from mpi4py import MPI
 #from sets import Set
 import nevergrad as ng
 
+all_results_dofs = []
+all_results_scores = []
+
 def send_job_to_node( comm, six_dofs, node, tag=1 ):
     comm.send( six_dofs, dest=node, tag=tag )
 
@@ -9,6 +12,10 @@ def interpret_result( bundle ):
     six_dofs = bundle[ 0 ]
     score = bundle[ 1 ]
     pose_filename = bundle[ 2 ]
+    print( "RESULT", pose_filename, score, six_dofs )
+
+    all_results_dofs.append( six_dofs.value )
+    all_results_scores.append( score )
     #TODO
 
 def tell_node_to_die( comm, node ):
@@ -33,7 +40,7 @@ def execute_kill_seq( comm, available_nodes, working_nodes ):
         tell_node_to_die( comm, source )
 
 #https://stackoverflow.com/questions/21088420/mpi4py-send-recv-with-tag
-def run_master( comm, nprocs, rank, opt, budget ):
+def run_master( comm, nprocs, rank, opt, budget, out_prefix ):
     
     available_nodes = set()
     for i in range( 1, nprocs ):
@@ -43,7 +50,10 @@ def run_master( comm, nprocs, rank, opt, budget ):
     
     optimizer = ng.optimizers.registry[ opt ]( parametrization=6, budget=budget, num_workers=(nprocs-1) )
     
-    for b in range( 0, budget ):
+    adjusted_budget = budget #this grows when jobs fail
+    njobs_sent = 0
+    while njobs_sent < adjusted_budget:
+    #for b in range( 0, budget ):
         if len( available_nodes ) == 0:
             #All are busy, wait for results
             status = MPI.Status()
@@ -55,6 +65,9 @@ def run_master( comm, nprocs, rank, opt, budget ):
             six_dofs = bundle[ 0 ]
             score = bundle[ 1 ]
             pose_filename = bundle[ 2 ]
+            if pose_filename == "(none)":
+                #Filter failed, don't pay for this one
+                adjusted_budget += 1
             optimizer.tell( six_dofs, score )
 
             interpret_result( bundle )
@@ -65,6 +78,11 @@ def run_master( comm, nprocs, rank, opt, budget ):
         node = available_nodes.pop() #removes node from available_nodes
         send_job_to_node( comm, six_dofs, node )
         working_nodes.add( node )
+        njobs_sent += 1
+
     #end for b    
     execute_kill_seq( comm, available_nodes, working_nodes )
     print( optimizer.provide_recommendation().value )
+
+    np.save( out_prefix + ".all_results_dofs.npy", np.asarray(all_results_dofs), allow_pickle=False )
+    np.save( out_prefix + ".all_results_scores.npy", np.asarray(all_results_scores), allow_pickle=False )
