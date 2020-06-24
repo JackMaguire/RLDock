@@ -1,0 +1,121 @@
+# This is a .comp file for preventing prolines from being designed into chain B (the AiD) during FastDesign.
+# Note, there was an excessive number of designs which placed a proline residue at the N-terminus of the AiD during previous runs.
+# Note, there was an excessive number of designs which placed trp and phe residues on the AiD where it met the hphobic patch of PD-1.
+# Then, after these fixes, there were many designs with ~3 tyr residues on a single helix
+# File created 14 May 2020 by Odessa Goudy (oda@email.unc.edu).
+# This penalty definition block specifies that, for pro, there will be a 100-point penalty for having ANY more than 0 pro residues.
+# This penalty definition block specifies that, for trp, there will be a 100-point penalty for having ANY more than 1 trp residues.
+# This penalty definition block specifies that, for phe, there will be a 100-point penalty for having ANY more than 2 phe residues.
+# This penalty definition block specifies that, for tyr, there will be a 100-point penalty for having ANY more than 2 tyr residues.
+
+##########################################################################################################
+PENALTY_DEFINITION
+
+# Define residue types to control
+TYPE PRO
+
+# Declare desired quantity of these residues
+ABSOLUTE 0
+
+# Set the penalty for having too few, at the desired number, and too many of the specified residues
+# No penalty for having too few or the desired number. Only penalize for having too many proline residues.
+PENALTIES 0 0 100
+
+# Set how many residues you can be below the desired quantity before a penalty is applied. Since
+# this value is a delta, the desired number of residues is "0", or zero residues away from the target.
+# Therefore, "-1" indicates that the penalty will be applied once there is one fewer than the
+# desired quantity
+DELTA_START -1
+
+# Set how many residues you can be above the desired quantity before a penalty is applied. Since
+# this value is a delta, the desired number of residues is "0", or zero residues away from the target.
+# Therefore, "1" indicates that the penalty will be applied once there is one more than the
+# desired quantity
+DELTA_END 1
+
+END_PENALTY_DEFINITION
+##########################################################################################################
+
+##########################################################################################################
+PENALTY_DEFINITION
+
+# Define residue types to control
+TYPE TRP
+
+# Declare desired quantity of these residues
+ABSOLUTE 1
+
+# Set the penalty for having too few, at the desired number, and too many of the specified residues
+# No penalty for having too few or the desired number. Only penalize for having too many proline residues.
+PENALTIES 0 0 100
+
+# Set how many residues you can be below the desired quantity before a penalty is applied. Since
+# this value is a delta, the desired number of residues is "0", or zero residues away from the target.
+# Therefore, "-1" indicates that the penalty will be applied once there is one fewer than the
+# desired quantity
+DELTA_START -1
+
+# Set how many residues you can be above the desired quantity before a penalty is applied. Since
+# this value is a delta, the desired number of residues is "0", or zero residues away from the target.
+# Therefore, "1" indicates that the penalty will be applied once there is one more than the
+# desired quantity
+DELTA_END 1
+
+END_PENALTY_DEFINITION
+##########################################################################################################
+
+##########################################################################################################
+PENALTY_DEFINITION
+
+# Define residue types to control
+TYPE PHE
+
+# Declare desired quantity of these residues
+ABSOLUTE 2
+
+# Set the penalty for having too few, at the desired number, and too many of the specified residues
+# No penalty for having too few or the desired number. Only penalize for having too many proline residues.
+PENALTIES 0 0 100
+
+# Set how many residues you can be below the desired quantity before a penalty is applied. Since
+# this value is a delta, the desired number of residues is "0", or zero residues away from the target.
+# Therefore, "-1" indicates that the penalty will be applied once there is one fewer than the
+# desired quantity
+DELTA_START -1
+
+# Set how many residues you can be above the desired quantity before a penalty is applied. Since
+# this value is a delta, the desired number of residues is "0", or zero residues away from the target.
+# Therefore, "1" indicates that the penalty will be applied once there is one more than the
+# desired quantity
+DELTA_END 1
+
+END_PENALTY_DEFINITION
+##########################################################################################################
+
+##########################################################################################################
+PENALTY_DEFINITION
+
+# Define residue types to control
+TYPE TYR
+
+# Declare desired quantity of these residues
+ABSOLUTE 2
+
+# Set the penalty for having too few, at the desired number, and too many of the specified residues
+# No penalty for having too few or the desired number. Only penalize for having too many proline residues.
+PENALTIES 0 0 100
+
+# Set how many residues you can be below the desired quantity before a penalty is applied. Since
+# this value is a delta, the desired number of residues is "0", or zero residues away from the target.
+# Therefore, "-1" indicates that the penalty will be applied once there is one fewer than the
+# desired quantity
+DELTA_START -1
+
+# Set how many residues you can be above the desired quantity before a penalty is applied. Since
+# this value is a delta, the desired number of residues is "0", or zero residues away from the target.
+# Therefore, "1" indicates that the penalty will be applied once there is one more than the
+# desired quantity
+DELTA_END 1
+
+END_PENALTY_DEFINITION
+##########################################################################################################
