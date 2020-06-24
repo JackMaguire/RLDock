@@ -8,7 +8,7 @@ pyrosetta.init( "-mute all" )
 ft_tag = "<AtomTree fold_tree_file=\"test_aligned_3H.foldtree\" />"
 ft_mover = XmlObjects.static_get_mover( ft_tag )
 
-only_do_low_res = False
+only_do_low_res = True
 
 def magic_number_for_failed_docking_filter():
     return 1;
@@ -80,6 +80,7 @@ def score_dofs( dofs ):
 
     # TODO
     if only_do_low_res:
+        print( "XYZ", low_res_score )
         return low_res_score / 10 #TEMP
 
     print( "low_res_score", low_res_score )
