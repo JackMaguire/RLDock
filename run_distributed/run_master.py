@@ -40,7 +40,7 @@ def execute_kill_seq( comm, available_nodes, working_nodes ):
         tell_node_to_die( comm, source )
 
 #https://stackoverflow.com/questions/21088420/mpi4py-send-recv-with-tag
-def run_master( comm, nprocs, rank, opt, budget, out_prefix ):
+def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices ):
     
     available_nodes = set()
     for i in range( 1, nprocs ):
@@ -49,11 +49,29 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix ):
     working_nodes = set()
     
     optimizer = ng.optimizers.registry[ opt ]( parametrization=6, budget=budget, num_workers=(nprocs-1) )
+
+    #Load if needed
+    if len( in_prefices ) > 0:
+        for prefix in in_prefices.split( "," ):
+            filename1 = prefix + ".all_results_dofs.npy"
+            filename2 = prefix + ".all_results_scores.npy"
+            dofs = np.load( filename1, allow_pickle=False )
+            score = np.load( filename2, allow_pickle=False )
+            assert( len( dofs ) == len( score ) )
+            for i in range( 0, len( dofs ) ):
+                #optimizer.suggest( dofs[ i ] )
+                #x = optimizer.ask()
+                x = optim.parametrization.spawn_child(new_value=dofs[ i ])
+                assert( x.value == dofs[ i ] )
+                optimizer.tell( x, score[ i ] )
+        
     
     adjusted_budget = budget #this grows when jobs fail
     njobs_sent = 0
     while njobs_sent < adjusted_budget:
     #for b in range( 0, budget ):
+        if njobs_sent % 100 == 0:
+            print( "Sent", njobs_sent, "jobs" )
         if len( available_nodes ) == 0:
             #All are busy, wait for results
             status = MPI.Status()

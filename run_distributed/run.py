@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description='test_narrowness.py')
 parser.add_argument('--opt', help='optimizer to use', required=True )
 parser.add_argument('--budget', help='budget for optimizer', required=True, type=int )
 parser.add_argument('--out_prefix', help='prefix_for_output_files', required=True, type=str )
+parser.add_argument('--in_prefices', help='comma separated list of prefices to load from', required=False, type=str, default="" )
 args = parser.parse_args()
 
 print( args.opt )
@@ -52,7 +53,7 @@ def run_slave( comm, rank ):
         comm.send( bundle, dest=0, tag=1 )
 
 if rank == 0:
-    run_master( comm=comm, nprocs=nprocs, rank=rank, opt=args.opt, budget=args.budget, out_prefix=args.out_prefix )
+    run_master( comm=comm, nprocs=nprocs, rank=rank, opt=args.opt, budget=args.budget, out_prefix=args.out_prefix, in_prefices=args.in_prefices )
 else:
     run_slave( comm, rank )
 
