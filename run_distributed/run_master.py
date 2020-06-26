@@ -2,6 +2,7 @@ from mpi4py import MPI
 #from sets import Set
 import nevergrad as ng
 import numpy as np
+import time
 
 all_results_tdofs = []
 all_results_rdofs = []
@@ -41,8 +42,14 @@ def execute_kill_seq( comm, available_nodes, working_nodes ):
         working_nodes.remove( source )
         tell_node_to_die( comm, source )
 
+def keep_going( hours_elapsed, hours_limit, njobs_sent, budget ):
+    if hours_limit > 0:
+        return hours_elapsed < hours_limit
+    else:
+        return njobs_sent < budget
+        
 #https://stackoverflow.com/questions/21088420/mpi4py-send-recv-with-tag
-def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices ):
+def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices, hours ):
     
     available_nodes = set()
     for i in range( 1, nprocs ):
@@ -80,7 +87,8 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices ):
     
     adjusted_budget = budget #this grows when jobs fail
     njobs_sent = 0
-    while njobs_sent < adjusted_budget:
+    begin = time.time()
+    while keep_going( hours_elapsed=float(time.time()-begin)/3600.0, hours_limit=hours, njobs_sent=njobs_sent, budget=adjusted_budget ):
     #for b in range( 0, budget ):
         if njobs_sent % 1 == 0:
             print( "Sent", njobs_sent, "jobs from budget of", adjusted_budget )
@@ -110,8 +118,10 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices ):
         working_nodes.add( node )
         njobs_sent += 1
 
+    print( "Spinning down after", time.time() - begin, "seconds"  )
     #end for b    
     execute_kill_seq( comm, available_nodes, working_nodes )
+    print( "Finished after", time.time() - begin, "seconds"  )
     print( optimizer.provide_recommendation().value )
 
     test1 = np.asarray( all_results_tdofs )
