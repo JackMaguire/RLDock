@@ -193,6 +193,23 @@
       <Add mover="bb_cst"/>
       <Add mover="comp_combo"/>
       <Add mover_name="fast-design-3"/> 3 repeats of FastDesign
+      <Add mover_name="IfaceAnalyzer"/>
+      <Add filter="f_new_buns_bb"/>
+
+      <Add mover="save_f_new_buns_bb_2"/>
+      <Add filter="f_new_buns_sc"/>
+
+      <Add mover="save_f_new_buns_sc_2"/>
+      <Add filter="f_combined_buns"/>
+
+      <Add mover="save_f_combined_buns_2"/>
+      <Add filter="f_calc_sasa"/>
+
+      <Add mover="save_f_contact-designable_des_2"/>
+      <Add mover="save_f_contact-hphobic_des_at_groove_des_2"/>
+      <Add filter="f_combined_scores"/>
+
+      <Add mover="save_f_combined_scores_des_2"/>
     </PROTOCOLS>
 
   </ROSETTASCRIPTS>

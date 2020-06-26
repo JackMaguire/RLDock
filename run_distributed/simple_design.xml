@@ -114,8 +114,7 @@
     </FILTERS>
 
     <MOVERS>
-      <FastDesign name="fast-design-1" relaxscript="MonomerDesign2019" repeats="1" scorefxn="sfxn_high-res" task_operations="NO_design_to,NO-pack_design_to,designable_to,designableR139_to,ifcl_to,extra_chi"/> Fast design protocol (which cycles bw repack and minimization with an increasing repulsive weight during each of the 4 cycles) that uses the MonomerDesign2019 (to reduce excessive ALA designs) instead of the rosettacon2018 relax script, and is applied to the designable and non-designable regions of the proteins ((1)), ((2)), ((3)), ((4)) ????? Does it override different task operations????  
-      <FastDesign name="fast-design-3" relaxscript="MonomerDesign2019" repeats="3" scorefxn="sfxn_high-res" task_operations="NO_design_to,NO-pack_design_to,designable_to,designableR139_to,ifcl_to,extra_chi"/> Fast design protocol (which cycles bw repack and minimization with an increasing repulsive weight during each of the 4 cycles) that uses the MonomerDesign2019 (to reduce excessive ALA designs) instead of the rosettacon2018 relax script, and is applied to the designable and non-designable regions of the proteins ((1)), ((2)), ((3)), ((4)) ????? Does it override different task operations????  
+      <FastDesign name="fast-design-4" relaxscript="MonomerDesign2019" repeats="1" scorefxn="sfxn_high-res" task_operations="NO_design_to,NO-pack_design_to,designable_to,designableR139_to,ifcl_to,extra_chi"/>
       
       <AddConstraints name="dock_constraint"> ???? Do I need to have a RemoveConstraints mover? Is a ClearConstraintMover okay? And do I need to name is here? Or in the Generator?????
       <DistanceConstraintGenerator function="FLAT_HARMONIC 9.0 2.0 3.0" name="distance-constraint" residue_selector1="scaffold-face1" atom_name1="CA" residue_selector2="receptor-face" atom_name2="CA"/> Flat harmonic function used to equally favor any distance, as long as the constraint is satisfied. Excludes models when at least 1 designable residue (on scaffold) is not near selected receptor residue by some Angstrom: X_0 SD +/-TOL
@@ -172,27 +171,7 @@
     <PROTOCOLS>
       <Add mover="bb_cst"/>
       <Add mover="comp_combo"/>
-      <Add mover_name="fast-design-1"/> Only 1 repeat of FastDesign
-      <Add mover_name="IfaceAnalyzer"/>
-      <Add filter="f_new_buns_bb"/>
-
-      <Add mover="save_f_new_buns_bb"/>
-      <Add filter="f_new_buns_sc"/>
-
-      <Add mover="save_f_new_buns_sc"/>
-      <Add filter="f_combined_buns"/>
-
-      <Add mover="save_f_combined_buns"/>
-      <Add filter="f_calc_sasa"/>
-
-      <Add mover="save_f_contact-designable_des_1"/>
-      <Add mover="save_f_contact-hphobic_des_at_groove_des_1"/>
-      <Add filter="f_combined_scores"/>
-
-      <Add mover="save_f_combined_scores_des_1"/>
-      <Add mover="bb_cst"/>
-      <Add mover="comp_combo"/>
-      <Add mover_name="fast-design-3"/> 3 repeats of FastDesign
+      <Add mover_name="fast-design-4"/>
     </PROTOCOLS>
 
   </ROSETTASCRIPTS>

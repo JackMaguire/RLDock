@@ -105,7 +105,9 @@ def score_dofs_and_get_pose( dofs ):
 
     #Perform Design
     parser = RosettaScriptsParser()
-    protocol = parser.generate_mover( "design.xml" )
+    #TODO
+    #protocol = parser.generate_mover( "design.xml" )
+    protocol = parser.generate_mover( "simple_design.xml" )
     protocol.apply( pose )
 
     if protocol.get_last_move_status() != pyrosetta.rosetta.protocols.moves.MS_SUCCESS:
@@ -116,7 +118,7 @@ def score_dofs_and_get_pose( dofs ):
     #We expect final_score_per_residue to be in the -3 to -2 range
     #We want it to be in the -1 to 0 range
     normalized_score_per_residue = final_score_per_residue + 2
-    if normalized_score_per_residue > magic_number_for_failed_design_filter():
+    if normalized_score_per_residue > (magic_number_for_failed_design_filter() - 0.1):
         #We don't want to punish the trajectory for passing filters
-        return magic_number_for_failed_design_filter()
+        return magic_number_for_failed_design_filter() - 0.1
     return { "score": normalized_score_per_residue, "pose": pose, "ran_fast_design": True }
