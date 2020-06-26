@@ -21,7 +21,7 @@ def scorer(x):
         mysum += i*i
     return mysum
 
-def run_slave( comm, rank ):
+def run_worker( comm, rank ):
 
     while True:
         status = MPI.Status()
@@ -40,5 +40,5 @@ def run_slave( comm, rank ):
 if rank == 0:
     run_master( comm=comm, nprocs=nprocs, rank=rank, opt=args.opt, budget=args.budget )
 else:
-    run_slave( comm, rank )
+    run_worker( comm, rank )
 

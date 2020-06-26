@@ -25,7 +25,7 @@ def scorer(x):
         mysum += i*i
     return mysum
 
-def run_slave( comm, rank, out_prefix ):
+def run_worker( comm, rank, out_prefix ):
 
     dumped_pose_count = 0;
     
@@ -55,5 +55,5 @@ def run_slave( comm, rank, out_prefix ):
 if rank == 0:
     run_master( comm=comm, nprocs=nprocs, rank=rank, opt=args.opt, budget=args.budget, out_prefix=args.out_prefix, in_prefices=args.in_prefices )
 else:
-    run_slave( comm, rank, out_prefix=args.out_prefix )
+    run_worker( comm, rank, out_prefix=args.out_prefix )
 

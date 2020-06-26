@@ -9,7 +9,7 @@ pyrosetta.init( "-mute all -linmem_ig 10" )
 ft_tag = "<AtomTree fold_tree_file=\"test_aligned_3H.foldtree\" />"
 ft_mover = XmlObjects.static_get_mover( ft_tag )
 
-only_do_low_res = True
+only_do_low_res = False
 
 def magic_number_for_failed_docking_filter():
     return 1;
