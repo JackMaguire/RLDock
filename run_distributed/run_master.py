@@ -83,7 +83,7 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices ):
     while njobs_sent < adjusted_budget:
     #for b in range( 0, budget ):
         if njobs_sent % 1 == 0:
-            print( "Sent", njobs_sent, "jobs" )
+            print( "Sent", njobs_sent, "jobs from budget of", adjusted_budget )
         if len( available_nodes ) == 0:
             #All are busy, wait for results
             status = MPI.Status()
@@ -95,8 +95,8 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices ):
             six_dofs = bundle[ 0 ]
             score = bundle[ 1 ]
             pose_filename = bundle[ 2 ]
-            if pose_filename == "(none)":
-                #Filter failed, don't pay for this one
+            count_against_budget = bundle[ 3 ]
+            if not count_against_budget:
                 adjusted_budget += 1
             optimizer.tell( six_dofs, score )
 

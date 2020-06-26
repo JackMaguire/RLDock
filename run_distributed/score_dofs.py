@@ -47,7 +47,6 @@ def score_dofs_and_get_pose( dofs ):
     switch = SwitchResidueTypeSetMover("centroid")
     switch.apply(pose)
 
-    #TODO setup foldtree
     #chain 1 has 117 residues
     #chain 2 has 18 residues
     #ft_tag = "<AtomTree fold_tree_file=\"test_aligned_3H.foldtree\" />"
@@ -91,14 +90,13 @@ def score_dofs_and_get_pose( dofs ):
     pose.set_jump( pose.num_jump(), jump )
     low_res_score = low_res_sfxn.score( pose ) - low_res_control
 
-    # TODO
     if only_do_low_res:
         print( "XYZ", low_res_score )
-        return { "score": low_res_score / 10, "pose": pose } #TEMP
+        return { "score": low_res_score / 10, "pose": pose, "ran_fast_design": False } #TEMP
 
-    print( "low_res_score", low_res_score )
+    #print( "low_res_score", low_res_score )
     if low_res_score >= 0.0:
-        return { "score": magic_number_for_failed_docking_filter() }
+        return { "score": magic_number_for_failed_docking_filter(), "ran_fast_design": False }
 
     #Go back into high-resolution mode
     switch2 = SwitchResidueTypeSetMover( "fa_standard" )
@@ -111,7 +109,7 @@ def score_dofs_and_get_pose( dofs ):
     protocol.apply( pose )
 
     if protocol.get_last_move_status() != pyrosetta.rosetta.protocols.moves.MS_SUCCESS:
-        return { "score": magic_number_for_failed_design_filter() }
+        return { "score": magic_number_for_failed_design_filter(), "ran_fast_design": True }
 
     sfxn = create_score_function( "ref2015" )
     final_score_per_residue = sfxn.score( pose ) / pose.size()
@@ -121,4 +119,4 @@ def score_dofs_and_get_pose( dofs ):
     if normalized_score_per_residue > magic_number_for_failed_design_filter():
         #We don't want to punish the trajectory for passing filters
         return magic_number_for_failed_design_filter()
-    return { "score": normalized_score_per_residue, "pose": pose }
+    return { "score": normalized_score_per_residue, "pose": pose, "ran_fast_design": True }
