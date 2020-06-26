@@ -122,6 +122,7 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices, hours 
     #end for b    
     execute_kill_seq( comm, available_nodes, working_nodes )
     print( "Finished after", time.time() - begin, "seconds"  )
+    print( "Ran", njobs_sent, "jobs" )
     print( optimizer.provide_recommendation().value )
 
     test1 = np.asarray( all_results_tdofs )
