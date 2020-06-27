@@ -12,7 +12,7 @@
 # 120 CPUs -> 28.6 hours
 # 160 CPUs -> 21.45 hours
 
-optimizer="RealSpacePSO"
+optimizer="DiscreteOnePlusOne"
 nCPU="80"
 hours="42.9"
 

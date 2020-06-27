@@ -1,7 +1,7 @@
 from mpi4py import MPI
 
-#from run_master import *
-#from run_worker import *
+from run_master import *
+from run_worker import *
 
 import argparse
 
@@ -19,11 +19,12 @@ nprocs = comm.Get_size()
 rank = comm.Get_rank()
 
 print( args.opt, rank )
+'''
 f = open("test" + str( rank ) + ".txt", "a" )
 f.write( str(rank) )
 f.close()
 exit( 0 )
-
+'''
 if rank == 0:
     run_master( comm=comm, nprocs=nprocs, rank=rank, opt=args.opt, budget=args.budget, out_prefix=args.out_prefix, in_prefices=args.in_prefices, hours=args.hours )
 else:
