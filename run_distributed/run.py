@@ -1,10 +1,10 @@
 from mpi4py import MPI
-from run_master import *
-from run_worker import *
-import argparse
-#import nevergrad as ng
 
-from score_dofs import *
+#from run_master import *
+#from run_worker import *
+
+import argparse
+
 
 parser = argparse.ArgumentParser(description='test_narrowness.py')
 parser.add_argument('--opt', help='optimizer to use', required=True )
@@ -18,8 +18,13 @@ comm = MPI.COMM_WORLD
 nprocs = comm.Get_size()
 rank = comm.Get_rank()
 
+print( args.opt, rank )
+f = open("test" + str( rank ) + ".txt", "a" )
+f.write( str(rank) )
+f.close()
+exit( 0 )
+
 if rank == 0:
-    print( args.opt )
     run_master( comm=comm, nprocs=nprocs, rank=rank, opt=args.opt, budget=args.budget, out_prefix=args.out_prefix, in_prefices=args.in_prefices, hours=args.hours )
 else:
     run_worker( comm, rank, out_prefix=args.out_prefix )
