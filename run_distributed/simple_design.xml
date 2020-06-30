@@ -173,5 +173,5 @@
       <Add mover="comp_combo"/>
       <Add mover_name="fast-design-4"/>
     </PROTOCOLS>
-
+<OUTPUT scorefxn="sfxn_high-res"/>
   </ROSETTASCRIPTS>
