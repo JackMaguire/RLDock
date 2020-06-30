@@ -211,5 +211,5 @@
 
       <Add mover="save_f_combined_scores_des_2"/>
     </PROTOCOLS>
-
+<OUTPUT scorefxn="sfxn_high-res"/>
   </ROSETTASCRIPTS>
