@@ -113,7 +113,7 @@ def score_dofs_and_get_pose( dofs ):
     if protocol.get_last_move_status() != pyrosetta.rosetta.protocols.moves.MS_SUCCESS:
         return { "score": magic_number_for_failed_design_filter(), "ran_fast_design": True }
 
-    sfxn = create_score_function( "ref2015" )
+    sfxn = create_score_function( "ref2015_cst" )
     final_score_per_residue = sfxn.score( pose ) / pose.size()
     #We expect final_score_per_residue to be in the -3 to -2 range
     #We want it to be in the -1 to 0 range
