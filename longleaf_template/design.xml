@@ -1,0 +1,198 @@
+<ROSETTASCRIPTS>
+  <!-- 10.msrs_des1_des3_cat.yml -->
+  
+  <SCOREFXNS>
+    <ScoreFunction name="sfxn_low-res" weights="interchain_cen"> Low res score function used during DockingProtocol
+    <Reweight scoretype="atom_pair_constraint" weight="1"/> ((5))
+    <Reweight scoretype="interchain_vdw" weight="50"/>
+    </ScoreFunction>
+    <ScoreFunction name="sfxn_high-res" weights="ref2015_cst"> High res score function used during FastDesign
+    <Reweight scoretype="aa_composition" weight="1.0" />
+    </ScoreFunction>
+    <ScoreFunction name="sfxn_basic" weights="ref2015"/> Basic score function used for filters, for calculating BUNs, and during InterfaceAnalyzer 
+  </SCOREFXNS>
+
+  <RESIDUE_SELECTORS>
+
+    <Chain chains="A" name="receptor"/>
+    <Chain chains="B" name="designableB-chain"/> Entire chain B is considered designable ((3))
+
+    <Index name="receptor-face" resnums="120A"/> Receptor-specific residue, source of distance constraint for docking
+    <Index name="receptor-face2" resnums="128A"/> Receptor-specific residue, source of distance constraint for docking
+    <Index name="receptor-face3" resnums="134A"/> Receptor-specific residue, source of distance constraint for docking
+    <Index name="receptor-face4" resnums="141A"/> Receptor-specific residue, source of distance constraint for docking
+    
+    <Index name="scaffold-face1" resnums="81B"/> Scaffold-specific residue, source of distance constraint for docking
+    <Index name="scaffold-face2" resnums="95B"/> Scaffold-specific residue, source of distance constraint for docking
+
+    /Source of distant constraints for C-N termini docking filter/	
+    <Index name="receptor-C-term" resnums="108"/> Receptor-specific residue, source of distance constraint for C-N terminus filter, uses internal numbering for total number of residues present (excludes missing residues)
+    <Index name="scaffold-N-term" resnums="109"/> Scaffold-specific residue, source of distance constraint for C-N terminus filter, uses internal numbering as: "receptor-C-term" + 1
+
+
+    <Index name="designableR139" resnums="139A"/> Receptor-specific residue, R139 is designable (but optional if removed from "designable"). Note: Arg139 is found in WT PD-1 3rrq and HA10 PD-1 5ius
+    
+    /// GROUPED SELECTORS ///
+
+    <Or name="designable" selectors="designableB-chain,designableR139"/> Note: OrResidueSelector creates the union of the ResidueSelectors it contains. Combines chain B and residue 139 of chain A and deems them both designable
+    <Not name="NOT-designable" selector="designable"/> All residues not deemed designable are grouped as "NOT-designable" ((1))
+
+    <ResidueName name="hphobic" residue_name3="ALA,VAL,ILE,LEU,MET,CYS,TRP,TYR,PHE,PRO,GLY"/>
+
+    /Source of interface between receptor and scaffold/
+    <InterfaceByVector name="interface">
+      <Chain chains="A"/>
+      <Chain chains="B"/>
+      </InterfaceByVector> This logic selects residues that are either already in direct contact with residues in the other group or that are pointing their c-alpha-c-beta vectors towards the other group.
+
+      <Not name="NOT-interface" selector="interface"/> All residues not at the interface between chain A and chain B (receptor and scaffold) are grouped as "NOT-interface" ((2))
+      
+      /Source of a "directed" interface between receptor faces (on chain A) and the designable residue selection of the scaffold (chain B)/
+      <Or name="combo_of_all_receptor_faces" selectors="receptor-face,receptor-face2,receptor-face3,receptor-face4"/> Note: OrResidueSelector creates the union of the ResidueSelectors it contains. Combines chain A receptor faces.
+      <InterfaceByVector name="rec-des_interface" grp1_selector="combo_of_all_receptor_faces" grp2_selector="designable"/> Subset of designable residues at the interface of the receptor faces on chain A. Selects residues pointing c-a-c-b vectors to the other group. 
+      <And name="des_interface" selectors="designable,rec-des_interface"/> Note: AndResidueSelector creates the intersection of the ResidueSelectors it contains. Used to determine and maximize the # of designable residues AT the interface ((6))
+      
+      /Source of a "groove" interface between the receptor groove (selective residues on chain A binding groove) and the designable residue selection of the scaffold (chain B)/
+      <Index name="rec_binding_groove" resnums="64A,66A,68A,81A,122A,126A,128A,132A,134A"/>
+      <InterfaceByVector name="rec_groove_des_interface" grp1_selector="rec_binding_groove" grp2_selector="designable"/>
+      <And name="hphobic_rec_at_groove" selectors="rec_groove_des_interface,receptor,hphobic"/> Note: AndResidueSelector creates the intersection of the ResidueSelectors it contains. Used to determine the # hphobic residues at the groove interface ON the receptor
+      <Or name="des_AND_hphobic_rec_at_groove" selectors="des_interface,hphobic_rec_at_groove"/> Note: OrResidueSelector cfeates the union. Scaffold designable interface res + hphobic receptor designable res at the groove interface
+
+
+      
+    </RESIDUE_SELECTORS>
+
+    <TASKOPERATIONS> 'to' is a suffix for all task-ops | repack interface, minimize all atoms
+    <OperateOnResidueSubset name="NO_design_to" selector="NOT-designable" > 
+      <RestrictToRepackingRLT/> Turns off design (but still allows both repacking and minimization) to all residues not deemed designable as a RLT (Residue Level TaskOperation) ((1))
+    </OperateOnResidueSubset>
+
+    <OperateOnResidueSubset name="NO-pack_design_to" selector="NOT-interface" >
+      <PreventRepackingRLT/> Turns off design and repacking (only minimizes) to all residues outside the interface of chain A and chain B ((2)) ??? Overrides No-pack_design to??????? 
+    </OperateOnResidueSubset>
+
+    <OperateOnResidueSubset name="designable_to" selector="designableB-chain">
+      <RestrictAbsentCanonicalAASRLT aas="ADEFGHIKLMNPQRSTVWY"/> A restricted list of AAs (does not include CYS) allowed in design during fast design for the chain B scaffold ((3))
+    </OperateOnResidueSubset>
+
+    <OperateOnResidueSubset name="designableR139_to" selector="designableR139">
+      <RestrictAbsentCanonicalAASRLT aas="LR"/> Allows R139 to exclusively mutate to R (WT residue), or G,I,L,A,F,V (hydrophobics) for Arg139 on receptor ((4)) 
+    </OperateOnResidueSubset>
+
+    <InitializeFromCommandline name="ifcl_to" /> Necessary option to enable reading commandline options
+    <ExtraRotamersGeneric name="extra_chi" ex1="1" ex2="1" /> Rotamer options applied during FastDesign for increased rotamer sampling of chi1 and chi2 to a standard deviation of 1
+    </TASKOPERATIONS>
+
+    <FILTERS>
+      <ScoreType name="f_b-site" score_type="atom_pair_constraint" scorefxn="sfxn_low-res" threshold="6"/> ?????????????? Computes the atom_pair_constraint of the pose, filter only keeps docking designs that lower than the threshold (that satisfy the atom_pair_constraint term during docking) ((5))  ????SHOULD Threshold by SET AT 5? OR AT 15? ??????
+      <ResidueCount name="f_contact-designable" max_residue_count="9999" min_residue_count="6" residue_selector="des_interface" /> Count # of interface residues that are designable, minimum is too high to be a functional filter. Applied to the designable residues on chain B at the interface of the scaffold and receptor ((6))
+      <ResidueCount name="f_contact-hphobic_des_at_groove" max_residue_count="9999" min_residue_count="11" residue_selector="des_AND_hphobic_rec_at_groove" /> Sum # of designable groove interface res AND the hphobic receptor res at the interface			
+      <ScoreType name="f_sfxn_basic" scorefxn="sfxn_basic" threshold="9999"/> Threshold is too high to be functional, used to do simple math ((8))
+      <ScoreType name="f_sfxn_low-res" scorefxn="sfxn_low-res" threshold="9999"/> Threshold is too high to be functional, used as a score reporter ((9))
+      <ScoreType name="f_total_score" scorefxn="sfxn_low-res" score_type="total_score" threshold="0"/>
+      <ReadPoseExtraScoreFilter name="read_dG/dSASA" term_name="dG_separated/dSASAx100" threshold="9999"/>
+
+      <CalculatorFilter equation="(-(f_total_score_for_calculator))" name="f_total_score_calculated" threshold="30"> New filter
+      <Var filter="f_total_score" name="f_total_score_for_calculator"/> ((8))
+      </CalculatorFilter>
+
+      <CalculatorFilter equation="((dG/dSASA*250) + (Etot))/2" name="f_combined_scores" threshold="99999"> New filter created to normalize dG_separated/dSASAx100 and E_total, created using the basic score function ((8))
+      <Var filter="f_sfxn_basic" name="Etot"/>
+      <Var filter="read_dG/dSASA" name="dG/dSASA"/>
+      </CalculatorFilter>
+
+      <ReadPoseExtraScoreFilter name="read_dSASA" term_name="dSASA_int" threshold="99999"/> Used to create a new filter based on dSASA_int, the solvent accessible area burried at the interface in square Angstroms ((10))
+      <CalculatorFilter equation="(-(dSASA))" name="f_calc_sasa" threshold="-1000"> ((10)) ???? I think this calculation is used to create a negative value, and then applied to only keep the lowest values -- which would correspond to keeping the highest dSASA???
+      <Var filter="read_dSASA" name="dSASA"/> ((10))
+      </CalculatorFilter>
+      <BuriedUnsatHbonds name="f_new_buns_bb" residue_selector="interface" report_bb_heavy_atom_unsats="true" scorefxn="sfxn_basic" cutoff="5" residue_surface_cutoff="20.0" ignore_surface_res="true" print_out_info_to_pdb="true" use_ddG_style="true" /> New filter for BUNs based on back bone bonds, allowing a small cutoff of expected BUNs (found in loops, generally) ((11))
+      <BuriedUnsatHbonds name="f_new_buns_sc" residue_selector="interface" report_sc_heavy_atom_unsats="true" scorefxn="sfxn_basic" cutoff="3" residue_surface_cutoff="20.0" ignore_surface_res="true" print_out_info_to_pdb="true" use_ddG_style="true" /> New filter for BUNs based on side chain bonds, allowing a small cutoff of expected BUNs (found in loops, generally) ((12))
+      <CalculatorFilter equation="(buns_bb + buns_sc)" name="f_combined_buns" threshold="5"> New filter for bb + sc BUNS (13)
+      <Var filter="f_new_buns_bb" name="buns_bb"/>
+      <Var filter="f_new_buns_sc" name="buns_sc"/>
+      </CalculatorFilter>
+    </FILTERS>
+
+    <MOVERS>
+      <FastDesign name="fast-design-1" relaxscript="MonomerDesign2019" repeats="1" scorefxn="sfxn_high-res" task_operations="NO_design_to,NO-pack_design_to,designable_to,designableR139_to,ifcl_to,extra_chi"/> Fast design protocol (which cycles bw repack and minimization with an increasing repulsive weight during each of the 4 cycles) that uses the MonomerDesign2019 (to reduce excessive ALA designs) instead of the rosettacon2018 relax script, and is applied to the designable and non-designable regions of the proteins ((1)), ((2)), ((3)), ((4)) ????? Does it override different task operations????  
+      <FastDesign name="fast-design-3" relaxscript="MonomerDesign2019" repeats="3" scorefxn="sfxn_high-res" task_operations="NO_design_to,NO-pack_design_to,designable_to,designableR139_to,ifcl_to,extra_chi"/> Fast design protocol (which cycles bw repack and minimization with an increasing repulsive weight during each of the 4 cycles) that uses the MonomerDesign2019 (to reduce excessive ALA designs) instead of the rosettacon2018 relax script, and is applied to the designable and non-designable regions of the proteins ((1)), ((2)), ((3)), ((4)) ????? Does it override different task operations????  
+      
+      <AddConstraints name="dock_constraint"> ???? Do I need to have a RemoveConstraints mover? Is a ClearConstraintMover okay? And do I need to name is here? Or in the Generator?????
+      <DistanceConstraintGenerator function="FLAT_HARMONIC 9.0 2.0 3.0" name="distance-constraint" residue_selector1="scaffold-face1" atom_name1="CA" residue_selector2="receptor-face" atom_name2="CA"/> Flat harmonic function used to equally favor any distance, as long as the constraint is satisfied. Excludes models when at least 1 designable residue (on scaffold) is not near selected receptor residue by some Angstrom: X_0 SD +/-TOL
+      </AddConstraints>
+      
+      <AddConstraints name="dock_constraint_2">
+        <DistanceConstraintGenerator function="FLAT_HARMONIC 9.0 2.0 4.0" name="distance-constraint" residue_selector1="designableB-chain" atom_name1="CA" residue_selector2="receptor-face2" atom_name2="CA"/> Flat harmonic function used to equally favor any distance, as long as the constraint is satisfied. Excludes models when at least 1 designable residue (on scaffold) is not near selected receptor residue by some Angstrom: X_0 SD +/-TOL
+      </AddConstraints>
+
+      <AddConstraints name="dock_constraint_3">
+	<DistanceConstraintGenerator function="FLAT_HARMONIC 9.0 2.0 3.0" name="distance-constraint" residue_selector1="scaffold-face2" atom_name1="CA" residue_selector2="receptor-face3" atom_name2="CA"/> Flat harmonic function used to equally favor any distanc
+      </AddConstraints>
+      
+      <AddConstraints name="dock_constraint_4">
+	<DistanceConstraintGenerator function="FLAT_HARMONIC 9.0 2.0 4.0" name="distance-constraint" residue_selector1="designableB-chain" atom_name1="CA" residue_selector2="receptor-face4" atom_name2="CA"/> Flat harmonic function used to equally favor any distanc
+      </AddConstraints>
+
+      <AddConstraints name="C-N-term_constraint">
+        <DistanceConstraintGenerator function="FLAT_HARMONIC 23.0 2.0 3.0" name="distance-constraint" residue_selector1="receptor-C-term" atom_name1="CA" residue_selector2="scaffold-N-term" atom_name2="CA"/> Flat harmonic function used to equally favor any distance, as long as the constraint is satisfied. Excludes models when receptor-C-term and the scaffold-N-term are further than 25 A away
+      </AddConstraints>
+      <SaveAndRetrieveSidechains name="sr_side-chains" allsc="1" multi_use="0" two_step="1"/> Retrieve all the sidechains from the input pose. Multi_use is not enabled because we will use the original sidechains both times. The first call to SARS only saves the sidechains, second call retrieves them.
+      <SwitchResidueTypeSetMover name="centro-full" set="fa_standard"/> Used to switch to full atom poses
+      <ClearConstraintsMover name="clear-cst"/> ????Same a a RemoveConstrintMover????? 
+      <FilterReportAsPoseExtraScoresMover name="save_f_combined_scores_des_1" report_as="f_combined-copy-des-1" filter_name="f_combined_scores"/> New filter created to normalize dG and E_total ((8))
+      <FilterReportAsPoseExtraScoresMover name="save_f_combined_scores_des_2" report_as="f_combined-copy-des-2" filter_name="f_combined_scores"/> New filter created to normalize dG and E_total ((8))
+      <FilterReportAsPoseExtraScoresMover name="save_f_contact-designable" report_as="f_contact-designable_copy" filter_name="f_contact-designable"/> Save # of interface residues that are designable contacts in scorefile ((6))
+      <FilterReportAsPoseExtraScoresMover name="save_f_contact-designable_local" report_as="f_contact-designable_local_copy" filter_name="f_contact-designable"/> Save # of interface residues that are designable contacts in scorefile -- after local docking
+      <FilterReportAsPoseExtraScoresMover name="save_f_contact-designable_des_1" report_as="f_contact-designable_des_1_copy" filter_name="f_contact-designable"/> Save # of interface residues that are designable contacts in scorefile -- after local docking
+      <FilterReportAsPoseExtraScoresMover name="save_f_contact-designable_des_2" report_as="f_contact-designable_des_1_copy" filter_name="f_contact-designable"/> Save # of interface residues that are designable contacts in scorefile -- after local docking
+      <FilterReportAsPoseExtraScoresMover name="save_f_contact-hphobic_des_at_groove" report_as="f_contact-hphobic_des_at_groove_copy" filter_name="f_contact-hphobic_des_at_groove"/>                        
+      <FilterReportAsPoseExtraScoresMover name="save_f_contact-hphobic_des_at_groove_des_1" report_as="f_contact-hphobic_des_at_groove_copy_des_1" filter_name="f_contact-hphobic_des_at_groove"/>                        
+      <FilterReportAsPoseExtraScoresMover name="save_f_contact-hphobic_des_at_groove_des_2" report_as="f_contact-hphobic_des_at_groove_copy_des_2" filter_name="f_contact-hphobic_des_at_groove"/>                        
+      <FilterReportAsPoseExtraScoresMover name="save_f_new_buns_bb" report_as="f_new_buns_bb-copy-1" filter_name="f_new_buns_bb"/> New filter created to filter based on back bone BUNs ((11))
+      <FilterReportAsPoseExtraScoresMover name="save_f_new_buns_bb_2" report_as="f_new_buns_bb-copy-2" filter_name="f_new_buns_bb"/> New filter created to filter based on back bone BUNs ((11))
+      <FilterReportAsPoseExtraScoresMover name="save_f_new_buns_sc" report_as="f_new_buns_sc-copy-1" filter_name="f_new_buns_sc"/> New filter created to filter based on side chain BUNs ((12))
+      <FilterReportAsPoseExtraScoresMover name="save_f_new_buns_sc_2" report_as="f_new_buns_sc-copy-2" filter_name="f_new_buns_sc"/> New filter created to filter based on side chain BUNs ((12))
+      <FilterReportAsPoseExtraScoresMover name="save_f_combined_buns" report_as="f_combined_buns-copy-1" filter_name="f_combined_buns"/> New filter created to filter based on back bone + side chain BUNs ((13))
+      <FilterReportAsPoseExtraScoresMover name="save_f_combined_buns_2" report_as="f_combined_buns-copy-2" filter_name="f_combined_buns"/> New filter created to filter based on back bone + side chain BUNs ((13))
+      <FilterReportAsPoseExtraScoresMover name="save_f_calc_sasa" report_as="f_calc_sasa-copy" filter_name="f_calc_sasa"/> New filter/score based on solven accessible surface area ((10))
+      <FilterReportAsPoseExtraScoresMover name="save_f_sfxn_low-res" report_as="f_sfxn_low-res-copy" filter_name="f_sfxn_low-res"/> ((9))
+      <FilterReportAsPoseExtraScoresMover name="save_f_b-site" report_as="f_b-site-copy" filter_name="f_b-site"/>
+      <FilterReportAsPoseExtraScoresMover name="save_f_total_score" report_as="f_total_score-copy" filter_name="f_total_score"/>
+      <FilterReportAsPoseExtraScoresMover name="save_f_total_score_calculated" report_as="f_total_score_calculated-copy" filter_name="f_total_score_calculated"/>
+      <AddConstraintsToCurrentConformationMover name="bb_cst" use_distance_cst="0" coord_dev="1.0" bound_width="1" cst_weight="1.0" residue_selector="receptor" CA_only="1" /> Apply backbone coordinate constraints onto receptor CAs with 1 angstrom flat-bottom
+      <InterfaceAnalyzerMover name="IfaceAnalyzer" scorefxn="sfxn_basic" packstat="1" interface_sc="false" pack_input="false" pack_separated="1" ligandchain="B" tracer="false" /> Calculate binding energies, buried interface surface areas, packing statistics, and other useful interface metrics for the evaluation of protein interfaces. Runs packstat on bound state. Does not run interface_sc on bound state. Does not repack the input before calculating bound state values. Does repack chains after separation, which increases unbound state evaluation. Moves only chain B. Does not report output to a Tracer. 
+      <MutateResidue name="mut-designable-to-leu" residue_selector="designableB-chain" new_res="LEU" /> Mutates entire chain B residues to LEU for global docking.
+      <RunSimpleMetrics name="global_docking_pose_score" > This "RunSimpleMetrics" mover was added in order to score the pose during docking. Intended for determining docking parameters only, not for complete design runs. ((16)) 
+      <TotalEnergyMetric scorefxn="sfxn_low-res" />
+      </RunSimpleMetrics>
+      <AddCompositionConstraintMover name="comp_combo" filename="desire_no_pro_cap_trp_phe_tyr_composition.comp" selector="designableB-chain" />
+
+    </MOVERS>
+
+    <PROTOCOLS>
+      <Add mover="bb_cst"/>
+      <Add mover="comp_combo"/>
+      <Add mover_name="fast-design-1"/> Only 1 repeat of FastDesign
+      <Add mover_name="IfaceAnalyzer"/>
+      <Add filter="f_new_buns_bb"/>
+
+      <Add mover="save_f_new_buns_bb"/>
+      <Add filter="f_new_buns_sc"/>
+
+      <Add mover="save_f_new_buns_sc"/>
+      <Add filter="f_combined_buns"/>
+
+      <Add mover="save_f_combined_buns"/>
+      <Add filter="f_calc_sasa"/>
+
+      <Add mover="save_f_contact-designable_des_1"/>
+      <Add mover="save_f_contact-hphobic_des_at_groove_des_1"/>
+      <Add filter="f_combined_scores"/>
+
+      <Add mover="save_f_combined_scores_des_1"/>
+      <Add mover="bb_cst"/>
+      <Add mover="comp_combo"/>
+      <Add mover_name="fast-design-3"/> 3 repeats of FastDesign
+    </PROTOCOLS>
+<OUTPUT scorefxn="sfxn_high-res"/>
+  </ROSETTASCRIPTS>
