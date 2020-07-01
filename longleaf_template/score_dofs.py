@@ -9,7 +9,7 @@ pyrosetta.init( "-mute all -linmem_ig 10" )
 ft_tag = "<AtomTree fold_tree_file=\"test_aligned_3H.foldtree\" />"
 ft_mover = XmlObjects.static_get_mover( ft_tag )
 
-only_do_low_res = False
+only_do_low_res = True
 
 def magic_number_for_failed_docking_filter():
     return 1;
@@ -90,35 +90,5 @@ def score_dofs_and_get_pose( dofs ):
     pose.set_jump( pose.num_jump(), jump )
     low_res_score = low_res_sfxn.score( pose ) - low_res_control
 
-    if only_do_low_res:
-        print( "XYZ", low_res_score )
-        return { "score": low_res_score / 10, "pose": pose, "ran_fast_design": False } #TEMP
-
-    #print( "low_res_score", low_res_score )
-    if low_res_score >= 0.0:
-        return { "score": magic_number_for_failed_docking_filter(), "ran_fast_design": False }
-
-    #Go back into high-resolution mode
-    switch2 = SwitchResidueTypeSetMover( "fa_standard" )
-    switch2.apply( pose )
-    recover_sidechains.apply( pose )
-
-    #Perform Design
-    parser = RosettaScriptsParser()
-    #TODO
-    #protocol = parser.generate_mover( "design.xml" )
-    protocol = parser.generate_mover( "simple_design.xml" )
-    protocol.apply( pose )
-
-    if protocol.get_last_move_status() != pyrosetta.rosetta.protocols.moves.MS_SUCCESS:
-        return { "score": magic_number_for_failed_design_filter(), "ran_fast_design": True }
-
-    sfxn = create_score_function( "ref2015_cst" )
-    final_score_per_residue = sfxn.score( pose ) / pose.size()
-    #We expect final_score_per_residue to be in the -3 to -2 range
-    #We want it to be in the -1 to 0 range
-    normalized_score_per_residue = final_score_per_residue + 2
-    if normalized_score_per_residue > (magic_number_for_failed_design_filter() - 0.1):
-        #We don't want to punish the trajectory for passing filters
-        return magic_number_for_failed_design_filter() - 0.1
-    return { "score": normalized_score_per_residue, "pose": pose, "ran_fast_design": True }
+    print( "XYZ", low_res_score )
+    return { "score": low_res_score / 10, "pose": pose, "ran_fast_design": False } #TEMP
