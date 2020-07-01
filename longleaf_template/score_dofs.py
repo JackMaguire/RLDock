@@ -9,6 +9,8 @@ pyrosetta.init( "-mute all -linmem_ig 10" )
 ft_tag = "<AtomTree fold_tree_file=\"test_aligned_3H.foldtree\" />"
 ft_mover = XmlObjects.static_get_mover( ft_tag )
 
+master_pose = pose_from_pdb("test_aligned_3H.pdb")
+
 only_do_low_res = True
 
 def magic_number_for_failed_docking_filter():
@@ -37,13 +39,15 @@ def score_dofs_and_get_pose( dofs ):
     #print( pyrosetta.rosetta.protocols.moves.MS_SUCCESS )
     #exit( 0 )
     
-    pose = pose_from_pdb("test_aligned_3H.pdb")   # input pdbfile
+    #pose = pose_from_pdb("test_aligned_3H.pdb")   # input pdbfile
+    pose = pyrosetta.rosetta.core.pose.Pose()
+    pose.assign( master_pose )
     #pose = pose_from_pdb("3u3b.clean.pdb")
     #pose = pose_from_sequence("VVV/LLLK")
     #return len(pose.chain_sequence( 1 ))
 
     # switch to centroid pose temporarily
-    recover_sidechains = ReturnSidechainMover(pose)
+    #recover_sidechains = ReturnSidechainMover(pose)
     switch = SwitchResidueTypeSetMover("centroid")
     switch.apply(pose)
 

@@ -12,7 +12,8 @@ TransParams = ng.p.Array( shape=(3,) )
 RotParams = ng.p.Array( shape=(3,) ).set_bounds( -2.5, 2.5 )
 AllParams = ng.p.Instrumentation( t=TransParams, r=RotParams )
 
-optimizer = ng.optimizers.registry[ args.opt ]( parametrization=AllParams, budget=10000, num_workers=1000 )
+budget=10000
+optimizer = ng.optimizers.registry[ args.opt ]( parametrization=AllParams, budget=budget, num_workers=1000 )
 recommendation = optimizer.minimize( score_separate_dofs )
 print( recommendation.value )
 
