@@ -57,8 +57,8 @@ def run_master( comm, nprocs, rank, opt, budget, out_prefix, in_prefices, hours 
 
     working_nodes = set()
 
-    TransParams = ng.p.Array( shape=(3,) )
-    RotParams = ng.p.Array( shape=(3,) ).set_bounds( -2.5, 2.5 )
+    TransParams = ng.p.Array( shape=(3,) ).set_bounds( -3, 3 ) #get mapped to angstroms later
+    RotParams = ng.p.Array( shape=(3,) ).set_bounds( -3, 3 ) #gets mapped to angles later
     AllParams = ng.p.Instrumentation( t=TransParams, r=RotParams )
 
     optimizer = ng.optimizers.registry[ opt ]( parametrization=AllParams, budget=budget, num_workers=(nprocs-1) )

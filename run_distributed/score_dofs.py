@@ -59,8 +59,8 @@ def score_dofs_and_get_pose( dofs ):
 
     #ALL ANGLES ARE IN DEGREES
     
-    T_factor = 10
-    R_factor = 90
+    T_factor = 2 # ( -3, 3 ) will turn into ( -6 A, 6 A )
+    R_factor = 15 # ( -3, 3 ) will turn into ( -45 deg, 45 deg )
     new_tx = jump_control.get_rb_delta( 1, 1 ) + (dofs[ 0 ]*T_factor)
     new_ty = jump_control.get_rb_delta( 2, 1 ) + (dofs[ 1 ]*T_factor)
     new_tz = jump_control.get_rb_delta( 3, 1 ) + (dofs[ 2 ]*T_factor)
