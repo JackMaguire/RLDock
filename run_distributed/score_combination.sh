@@ -1,15 +1,17 @@
 #!/bin/bash
 
+if [[ "$#" -ne 1 ]]; then
+    echo "You forgot to pass the rank as argument number 1"
+    exit 1
+fi
+
+#1, 5, 10, 25, 50, etc
+rank=$1
+
 while read combination; do
-    
-    best_score="9999999999"
+   
     for dir in $combination; do
-	#echo $dir
-	score=$(grep pose $dir/*.pdb | awk '{print $NF}' | sort -g | head -n1 )
-	if [[ $(echo "$score < $best_score" | bc -l) -eq 1 ]]; then
-	    best_score=$score
-	fi
-    done
-    echo $best_score
+	grep pose $dir/*.pdb | awk '{print $NF}'
+    done | sort -g | head -n $rank | tail -n 1
     
 done
