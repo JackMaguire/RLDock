@@ -6,7 +6,7 @@ while read combination; do
     for dir in $combination; do
 	#echo $dir
 	score=$(grep pose $dir/*.pdb | awk '{print $NF}' | sort -g | head -n1 )
-	if [[ $score -lt $best_score ]]; then
+	if [[ $(echo "$score < $best_score" | bc -l) -eq 1 ]]; then
 	    best_score=$score
 	fi
     done
